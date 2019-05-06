@@ -3,7 +3,9 @@ from pytdx.hq import TdxHq_API
 import random
 import time
 import pprint
-
+from robotutils import oplogs
+import pandas as pd
+import os
 
 blacklist = ['300292', '002761', '603777', '002656', '002316', '300526', '300442', '300310', '300344', '600682', '002418', '300050', '600175', 
             '600751', '002740', '300608', '300299', '002759', '600260', '600804', '002359', '300362', '600355', '300264', '300056', '300459', '002252', 
@@ -36,10 +38,10 @@ class StockMod(object):
     def __init__(self,debug=False):
         # 初始化tdx
         self.debug = debug
-        print("Loading stock mod...")
+        oplogs("Loading stock mod...")
         self.api = TdxHq_API(heartbeat=(not debug),auto_retry=True)
         self.connect_to_tdx()
-        self.stocklist = ts.get_stock_basics()
+        self.load_stocklist()
         self.stockdict = self.stocklist.to_dict()["name"]
         self.stockrdict = {value:key for key,value in self.stockdict.items()}
         self.stockcode = self.stocklist.index.to_list()
@@ -58,6 +60,19 @@ class StockMod(object):
                 return            
             else:
                 print("Connected to %s failed!!" %ip)
+    def load_stocklist(self):
+        
+        try:
+            oplogs("get_stock_basics() ...")        
+            self.stocklist = ts.get_stock_basics()
+            oplogs("get_stock_basics() load from remote success")
+        except:
+            # 如果加载远程股票列表失败, 从本地列表读取
+            oplogs("get_stock_basics() timeout, use all.csv instead")
+            cur_path=os.path.dirname(os.path.realpath(__file__)) 
+            stocklist_path=os.path.join(cur_path,'all.csv')
+            df = pd.read_csv(stocklist_path, dtype={'code':'object'},encoding='GBK')
+            df = df.set_index('code')
 
     def get_market(self, code):
         # 计算市场代码,1=sh, 0=sz
@@ -229,11 +244,9 @@ class StockMod(object):
         print(df)
 
 if __name__ == '__main__':
-    mybot = StockMod(debug=True)    
-    bl = open('./blacklist.txt', mode='r',encoding='utf8')
-    ftext = bl.read()
-    bl.close()
-    
-    stock_blacklist = mybot.extract_stock_from_msg(ftext)
-    print(stock_blacklist)
+    cur_path=os.path.dirname(os.path.realpath(__file__)) 
+    stocklist_path=os.path.join(cur_path,'all.csv')
+    df = pd.read_csv(stocklist_path, dtype={'code':'object'},encoding='GBK')
+    df = df.set_index('code')
+    print(df.head())
     

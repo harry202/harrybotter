@@ -2,11 +2,21 @@
 
 Harry Botter 是基于web版微信和股票免费数据接口的股票聊天机器人.
 
+
 ## 环境及启动
 程序使用python3.6+开发, 不支持python2.x.
 
-源代码位于src目录下,通过python main.py启动.
+可发布代码位于dist目录下,目录名为发布年月日.
+
+主干源代码位于src目录下,通过python main.py启动.
 启动前可以编辑main.py中的 supportgroup数组用于设置提供服务的群名称
+
+## 使用说明
+启动
+'''python
+python main.py
+'''
+运行后会在console中显示二维码,扫码登陆 或 需要手机微信中确认登陆(同web版本微信登陆过程). 如果短时间内登陆过,可以直接登录。
 
 ## 主要功能
 注意:以下功能仅对群支持, 且必须加入supportgroup

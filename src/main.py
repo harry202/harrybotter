@@ -1,5 +1,7 @@
 import time,os
 import psutil
+import configparser
+from robotutils import oplogs
 
 import itchat
 from itchat.content import TEXT
@@ -11,9 +13,8 @@ supportgroup = []
 @itchat.msg_register(itchat.content.TEXT)
 def text_reply(msg):
     # use filehelper as control console
-    if msg.user['UserName'] == "filehelper":
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        print("[%s]['filehelper']%s" %(timestamp, msg['Text'])) 
+    if msg.user['UserName'] == "filehelper":        
+        oplogs("['filehelper']%s" %(msg['Text'])) 
 
         ret = gRobot.action(msg.Text)
         time.sleep(1)
@@ -25,8 +26,7 @@ def text_reply(msg):
 def group_reply(msg):
     # 处理support group中的命令
     if gRobot.is_support_group(msg.User.NickName):
-        print("[%s][%s:%s]%s" %(time.strftime("%Y-%m-%d %H:%M:%S"), 
-                    msg.User.NickName, msg.ActualNickName, msg['Text']))
+        oplogs("[%s:%s]%s" %(msg.User.NickName, msg.ActualNickName, msg['Text']))
         #忽略at我的命令
         if msg.isAt:
             return
@@ -52,16 +52,31 @@ def sendto(subscriber, msg):
         itchat.get_chatrooms(update=True, contactOnly= True)
         chatrooms = itchat.search_chatrooms(name=subscriber)
         if len(chatrooms)>0:
-            print('sending message to',chatrooms[0]['UserName'])
+            oplogs('sending message to %s' %(chatrooms[0]['UserName']))
             chatrooms[0].send(msg)
     #itchat.send(msg, chatrooms[0]['UserName'])
+
 def quitwx():
-    print("About to shutdown Harry Botter")
+    oplogs("About to shutdown Harry Botter")
+    itchat.send("harry botter stopped",'filehelper')
     itchat.logout()
+
+def loadcfg():
+    global supportgroup
+    cur_path=os.path.dirname(os.path.realpath(__file__)) 
+ 
+    #获取config.ini的路径
+    config_path=os.path.join(cur_path,'config.ini')
+    conf=configparser.ConfigParser()
+    conf.read(config_path, encoding='utf-8')
+    
+    supportgroup=conf.get('default', 'supportgroups').split(',')
+    oplogs("supportgroups loaded")
 
 def init_robot():
     global gRobot
     # 默认在windows下开启调试模式
+    loadcfg()
     gRobot = HarryBotter(debug = (os.name is 'nt'),stopcb=quitwx)
     gRobot.add_groups(supportgroup)
     gRobot.subscribe(sendto)
@@ -72,6 +87,6 @@ def main():
     #itchat.start_receiving()    
     itchat.run()
     
-    print("Harry Botter offline")
+    oplogs("Harry Botter offline")
 
 main()

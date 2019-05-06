@@ -1,0 +1,13 @@
+cfg\*
+*.pyc
+*.pkl
+*.swp
+*.db
+*.code-workspace
+test.py
+*.pkl
+QR.jpg
+.DS_Store
+*.log
+*.ini
+

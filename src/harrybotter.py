@@ -21,7 +21,7 @@ class HarryBotter(object):
         self.stopcb = stopcb
         self.__load_mods()        
         #self.__init_db()
-        #self.__init_jobs()
+        self.__init_jobs()
         oplogs("Harry Botter is online")
 
     def __del__(self):
@@ -54,8 +54,8 @@ class HarryBotter(object):
         # 创建数据库数据库用于永久记忆
         self.conn = sqlite3.connect('messages.db')
         self.cursor = self.conn.cursor()
-        self.cursor.execute('create table if not exists msgqueue (id integer primary key autoincrement, date TEXT, group TEXT, user TEXT, msg TEXT)')
-        self.cursor.execute('create table if not exists monitorstocks (id integer primary key autoincrement, group TEXT, code TEXT)')
+        self.cursor.execute('create table if not exists msgqueue (id integer primary key autoincrement, date TEXT, groupname TEXT, user TEXT, msg TEXT)')
+        self.cursor.execute('create table if not exists monitorstocks (id integer primary key autoincrement, groupname TEXT, code TEXT)')
         self.cursor.commit()
         
         oplogs("[%s]messages.db connected")
