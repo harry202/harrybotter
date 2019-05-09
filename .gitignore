@@ -10,4 +10,5 @@ QR.jpg
 .DS_Store
 *.log
 *.ini
+.vscode
 

@@ -49,17 +49,17 @@ class StockMod(object):
 
         self.monitor_queue = dict()
     def __del__(self):
-        print("Unloading stock mod...")
+        oplogs("Unloading stock mod...")
         self.api.disconnect()
         #self.stop_jobs()
     def connect_to_tdx(self):
         random.shuffle(HZ_HOST_IPS)
         for ip in HZ_HOST_IPS:
             if self.api.connect(ip, 7709):
-                print("Connected to %s success" %ip)    
+                oplogs("Connected to %s success" %ip)    
                 return            
             else:
-                print("Connected to %s failed!!" %ip)
+                oplogs("Connected to %s failed!!" %ip)
     def load_stocklist(self):
         
         try:
@@ -85,7 +85,7 @@ class StockMod(object):
         if code not in self.stockcode:
             return ""
         market = self.get_market(code)
-        print("get_stock_price called,code=%s,market=%s" %(code,market))        
+        oplogs("get_stock_price called,code=%s,market=%s" %(code,market))        
         
         price = self.api.get_security_quotes([(market,code)])
         
@@ -142,11 +142,12 @@ class StockMod(object):
             code = self.stockrdict[stock]
 
         if group in self.monitor_queue.keys():
-            self.monitor_queue[group].append(code)
+            if code not in self.monitor_queue[group]:
+                self.monitor_queue[group].append(code)
         else:
             self.monitor_queue[group] = [code]
 
-        print("add_to_monitor_group called:%s %s" %(group, stock))
+        oplogs("add_to_monitor_group called:%s %s" %(group, stock))
     def get_group_stock_price(self, group):
         if group in self.monitor_queue.keys():
             stocks = []
@@ -172,7 +173,7 @@ class StockMod(object):
         market = self.get_market(code)    
         data_day = self.api.get_security_quotes([(market,code)])    # get daily changes
         if self.debug:
-            print("get_stock_daily called")
+            oplogs("get_stock_daily called")
             #print(self.api.to_df(data_day).ix[:,0:8])
 
         last_close = data_day[0]['last_close']
@@ -188,7 +189,7 @@ class StockMod(object):
         market = self.get_market(code)   
         data_min = self.api.get_security_bars(0,market, code, 0, 1) # 5 min K bar
         if self.debug:
-            print("get_stock_min called")
+            oplogs("get_stock_min called")
             #print(self.api.to_df(data_min).ix[:,0:8])
             
         open = data_min[0]['open']
@@ -207,7 +208,7 @@ class StockMod(object):
             change_close_open = 0
         
         return change_high_low, change_close_open
-    def get_alarms(self,valve=2.0):
+    def get_alarms(self,valve=3.0):
         # timeslice , slice in time series, default =5 min
         # range, monitor change range, default = 3%. Actual change range = abs((high-low)/low)
         groupalarms = dict()

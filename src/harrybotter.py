@@ -6,7 +6,7 @@ from stockmod import StockMod
 from robotutils import oplogs
  
 
-HR__VERSION = "Released on 2019.5.5"
+HR__VERSION = "Released on 2019.5.7"
 
 syscmd = ['/cfg','/help', '/show','/add','/delete','/test','/restart','/start','/stop','/use', 'ping']
 cmdhelp = ['/cfg 配置','/help 显示帮助']
@@ -72,7 +72,7 @@ class HarryBotter(object):
         #self.sched.add_job(self.job_clean_cache, trigger='cron', day_of_week='*',hour=1, minute=0, second=0)
 
         # 提供给group的5分钟检测
-        self.sched.add_job(self.job_stock_monitor, trigger='cron', id='job_stock_monitor', minute="*/5", next_run_time=None)
+        self.sched.add_job(self.job_stock_monitor, trigger='cron', id='job_stock_monitor', minute="*/5")#, next_run_time=None)
 
         # 交易日9:30:15生成开盘报告
         self.sched.add_job(self.job_open_scan, trigger='cron', day_of_week='0-4',hour=9, minute=30, second=15)
@@ -97,7 +97,7 @@ class HarryBotter(object):
             notice = ""
             for alarm in alarms:
                 # alarm = [stockname,price,change,highlow,closeopen]
-                alarm_content = "[%s %.2f%%]5分钟涨跌幅：%.2f%%, 波动:%.2f%%\n" %(alarm[0],alarm[2],alarm[4],alarm[3])
+                alarm_content = "5分钟涨跌\n[%s %.2f%%]幅度：%.2f%%, 波动:%.2f%%\n" %(alarm[0],alarm[2],alarm[4],alarm[3])
                 notice  += alarm_content
             if len(notice)>0:
                 print(notice)
