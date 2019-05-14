@@ -42,11 +42,6 @@ class StockMod(object):
         self.api = TdxHq_API(heartbeat=(not debug),auto_retry=True)
         self.connect_to_tdx()
         self.load_stocklist()
-        self.stockdict = self.stocklist.to_dict()["name"]
-        self.stockrdict = {value:key for key,value in self.stockdict.items()}
-        self.stockcode = self.stocklist.index.to_list()
-        self.stockname = self.stocklist.name.to_list()
-
         self.monitor_queue = dict()
     def __del__(self):
         oplogs("Unloading stock mod...")
@@ -68,11 +63,21 @@ class StockMod(object):
             oplogs("get_stock_basics() load from remote success")
         except:
             # 如果加载远程股票列表失败, 从本地列表读取
-            oplogs("get_stock_basics() timeout, use all.csv instead")
+            oplogs("get_stock_basics() timeout, use local cached file instead")
             cur_path=os.path.dirname(os.path.realpath(__file__)) 
             stocklist_path=os.path.join(cur_path,'all.csv')
             df = pd.read_csv(stocklist_path, dtype={'code':'object'},encoding='GBK')
             df = df.set_index('code')
+            self.stocklist = df
+        
+        # remove space in stock name
+        self.stocklist['name'] = self.stocklist['name'].replace(' ','')
+
+        # create dict and list to shorten search time
+        self.stockdict = self.stocklist.to_dict()["name"]        
+        self.stockrdict = {value:key for key,value in self.stockdict.items()}
+        self.stockcode = self.stocklist.index.to_list()
+        self.stockname = self.stocklist.name.to_list()
 
     def get_market(self, code):
         # 计算市场代码,1=sh, 0=sz
