@@ -72,7 +72,7 @@ class HarryBotter(object):
         #self.sched.add_job(self.job_clean_cache, trigger='cron', day_of_week='*',hour=1, minute=0, second=0)
 
         # 提供给group的5分钟检测
-        self.sched.add_job(self.job_stock_monitor, trigger='cron', id='job_stock_monitor', minute="*/5", next_run_time=None)
+        self.sched.add_job(self.job_stock_monitor, trigger='cron', id='job_stock_monitor', minute="*/5")#, next_run_time=None)
 
         # 交易日9:30:15生成开盘报告
         self.sched.add_job(self.job_open_scan, trigger='cron', day_of_week='0-4',hour=9, minute=30, second=15)
@@ -90,9 +90,9 @@ class HarryBotter(object):
             self.sched.shutdown()
         oplogs("schedulers stopped")
 
-    def job_stock_monitor(self,valve=2.0):
+    def job_stock_monitor(self,valve=3.0):
         if self.enable is False:
-            return ""
+            return
 
         oplogs("job_stock_monitor triggerred")
         group_alarms = self.stockmod.get_alarms(valve)
@@ -109,12 +109,13 @@ class HarryBotter(object):
 
     def job_open_scan(self):
         oplogs("job_open_scan triggerred")
-        self.job_stock_monitor(valve=5.0)
+        self.job_stock_monitor()
         self.sched.resume_job(job_id = "job_stock_monitor")
 
     def job_close_scan(self):
         oplogs("job_close_scan triggerred")
         self.sched.pause_job(job_id = "job_stock_monitor")
+        oplogs("job_stock_monitor paused")
         
     def job_forget(self, persist = False):
         # 清除记忆
@@ -160,8 +161,6 @@ class HarryBotter(object):
         return False
 
     def action_user(self, cmd, group, user):
-        if self.enable is False:
-            return ""
 
         cmds = cmd.lower().split()
 
