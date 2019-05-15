@@ -72,12 +72,12 @@ class HarryBotter(object):
         #self.sched.add_job(self.job_clean_cache, trigger='cron', day_of_week='*',hour=1, minute=0, second=0)
 
         # 提供给group的5分钟检测
-        self.sched.add_job(self.job_stock_monitor, trigger='cron', id='job_stock_monitor', minute="*/5")#, next_run_time=None)
+        self.sched.add_job(self.job_stock_monitor, trigger='cron', id='job_stock_monitor', minute="*/5", next_run_time=None)
 
         # 交易日9:30:15生成开盘报告
         self.sched.add_job(self.job_open_scan, trigger='cron', day_of_week='0-4',hour=9, minute=30, second=15)
         
-        # 交易日15:05生成收盘报告
+        # 交易日15:05:00生成收盘报告
         self.sched.add_job(self.job_close_scan, trigger='cron', day_of_week='0-4',hour=15, minute=5, second=0)
         
         # 启动调度器
@@ -91,6 +91,9 @@ class HarryBotter(object):
         oplogs("schedulers stopped")
 
     def job_stock_monitor(self,valve=2.0):
+        if self.enable is False:
+            return ""
+
         oplogs("job_stock_monitor triggerred")
         group_alarms = self.stockmod.get_alarms(valve)
         for (group, alarms) in group_alarms.items():
@@ -157,6 +160,9 @@ class HarryBotter(object):
         return False
 
     def action_user(self, cmd, group, user):
+        if self.enable is False:
+            return ""
+
         cmds = cmd.lower().split()
 
         #"命令格式：
@@ -183,6 +189,10 @@ class HarryBotter(object):
             return 'harry [股票名|本群推荐|stat*|report*|help|ver]'
         elif 'ver' in cmds[1]:
             return HR__VERSION
+        elif '启动' in cmds[1]:
+            return "臣在"
+        elif '关闭' in cmds[1]:
+            return "跪安"
         else:
             oplogs("action_user:harry [stock] called %s" %cmd)
             if self.stockmod.isvalid_stock(cmds[1]):
@@ -273,7 +283,11 @@ class HarryBotter(object):
     def start(self):
         # 启动机器人
         self.enable = True
-        return "started"
+        return "臣在"
+
+    def pause(self):
+        self.enable = False
+        return "跪安"
     def stop(self):
         print("stop called")
         # 离线机器人
