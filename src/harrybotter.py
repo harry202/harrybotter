@@ -6,7 +6,7 @@ from stockmod import StockMod
 from robotutils import oplogs
  
 
-HR__VERSION = "Released on 2019.5.7"
+HR__VERSION = "Released on 2019.12.3"
 
 syscmd = ['/cfg','/help', '/show','/add','/delete','/test','/restart','/start','/stop','/use', 'ping']
 cmdhelp = ['/cfg 配置','/help 显示帮助']
@@ -174,9 +174,11 @@ class HarryBotter(object):
         if len(cmds)==1:
             return random.choice(auto_replys)
         
-        if '本群推荐' in cmds[1]:
+        if ('list' in cmds[1]) or ('本群推荐' in cmds[1]):
             oplogs("action_user:本群推荐 [%s]" %cmd)
             return self.stockmod.get_group_stock_price(group)
+        elif 'del' in cmds[1]:
+            return self.stockmod.del_from_list(group, cmds[2])
         elif 'stat' in cmds[1]:
             stat = "共有群消息 条\n"
             stat = stat + ""
@@ -185,7 +187,7 @@ class HarryBotter(object):
             return "建设中"
         elif 'help' in cmds[1]:
             oplogs("action_user:help called")
-            return 'harry [股票名|本群推荐|stat*|report*|help|ver]'
+            return 'harry [股票名|本群推荐|list|del stockname|help|ver]'
         elif 'ver' in cmds[1]:
             return HR__VERSION
         elif '启动' in cmds[1]:

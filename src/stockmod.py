@@ -71,7 +71,12 @@ class StockMod(object):
             self.stocklist = df
         
         # remove space in stock name
-        self.stocklist['name'] = self.stocklist['name'].replace(' ','')
+        self.stocklist['name'] = self.stocklist['name'].str.replace(' ','')
+        
+        self.stocklist.drop(self.stocklist[self.stocklist.name == '机器人'].index, inplace=True)
+        self.stocklist = self.stocklist.append([{'code':'999999','name':'上证指数'}],ignore_index=True)
+        self.stocklist = self.stocklist.append([{'code':'399001','name':'深圳成指'}],ignore_index=True)
+        self.stocklist = self.stocklist.append([{'code':'399006','name':'创业板指'}],ignore_index=True)
 
         # create dict and list to shorten search time
         self.stockdict = self.stocklist.to_dict()["name"]        
@@ -168,7 +173,7 @@ class StockMod(object):
                 else:
                     newprice = "%.2f" %record[1]
                     newchange = "%.2f%%" %record[2]
-                    result += "[%s]%s 涨幅:%s\n" %(self.stockdict[record[0]],
+                    result += "[%s]%s:%s\n" %(self.stockdict[record[0]],
                                                         newprice, newchange)
             return result
         return ""

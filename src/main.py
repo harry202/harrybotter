@@ -80,11 +80,13 @@ def init_robot():
     gRobot = HarryBotter(debug = (os.name is 'nt'),stopcb=quitwx)
     gRobot.add_groups(supportgroup)
     gRobot.subscribe(sendto)
+    oplogs("Harry bot init accomplished")
       
 
 def main(): 
     itchat.auto_login(enableCmdQR=2,hotReload=True,loginCallback=init_robot)
     #itchat.start_receiving()    
+    oplogs("Harry bot is ready to run")
     itchat.run()
     
     oplogs("Harry Botter offline")
