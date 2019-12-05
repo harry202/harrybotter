@@ -16,10 +16,21 @@ def text_reply(msg):
     if msg.user['UserName'] == "filehelper":        
         oplogs("['filehelper']%s" %(msg['Text'])) 
 
-        ret = gRobot.action(msg.Text)
-        time.sleep(1)
-        if ret is not "":
-            msg.user.send(ret)
+        usercmd = msg.Text.split()
+        if usercmd[0] == 'harry':
+            ret = gRobot.action_user(msg.Text, 
+                                    msg.User.UserName, 
+                                    msg.User.UserName)
+
+            time.sleep(1)
+            
+            if ret is not "":
+                msg.user.send(ret)
+        else:
+            ret = gRobot.action(msg.Text)
+            time.sleep(1)
+            if ret is not "":
+                msg.user.send(ret)
 
 
 @itchat.msg_register([TEXT],isGroupChat=True)

@@ -74,9 +74,12 @@ class StockMod(object):
         self.stocklist['name'] = self.stocklist['name'].str.replace(' ','')
         
         self.stocklist.drop(self.stocklist[self.stocklist.name == '机器人'].index, inplace=True)
-        self.stocklist = self.stocklist.append([{'code':'999999','name':'上证指数'}],ignore_index=True)
-        self.stocklist = self.stocklist.append([{'code':'399001','name':'深圳成指'}],ignore_index=True)
-        self.stocklist = self.stocklist.append([{'code':'399006','name':'创业板指'}],ignore_index=True)
+        df_index = pd.DataFrame([['999999','上证指数'], ['399001','深证成指'], ['399006','创业板指']], index=['999999','399001','399006'], columns=['code', 'name'])
+
+        #self.stocklist = self.stocklist.append([{'index':999999,'code':'999999','name':'上证指数'}])
+        #self.stocklist = self.stocklist.append([{'index':399001,'code':'399001','name':'深圳成指'}])
+        #self.stocklist = self.stocklist.append([{'index':399006,'code':'399006','name':'创业板指'}])
+        self.stocklist = self.stocklist.append(df_index)
 
         # create dict and list to shorten search time
         self.stockdict = self.stocklist.to_dict()["name"]        
@@ -87,8 +90,13 @@ class StockMod(object):
     def get_market(self, code):
         # 计算市场代码,1=sh, 0=sz
         market = 0
-        if code[0] == '6':
+        if code == '999999':
+            return 1
+        elif code in ['399001','399006']:
+            return 0
+        elif code[0] == '6':
             market = 1
+
         return market
         
     def get_stock_price(self, code):
