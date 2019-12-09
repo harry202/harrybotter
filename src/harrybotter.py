@@ -1,4 +1,5 @@
 import time,random
+from datetime import datetime
 import sqlite3
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -12,8 +13,8 @@ syscmd = ['/cfg','/help', '/show','/add','/delete','/test','/restart','/start','
 cmdhelp = ['/cfg 配置','/help 显示帮助']
 USER_CMD = 'harry'
 
-auto_replys = ["莫西莫西","你猜我是机器人吗","啥事？",
-        "命令格式：\n[添加监控]harry 股票名\n[删除监控]harry del 股票名\n[显示群推荐]harry 本群推荐\n[显示群数据统计]harry stat\n[显示报告]harry report"]
+auto_replys = ["命令格式：\n[添加监控]harry 股票名\n[删除监控]harry del 股票名\n[显示群推荐]harry list\n[显示机器人状态]harry stat\n[显示群报告]harry report",
+            "莫西莫西","你猜我是机器人吗","？"]
 class HarryBotter(object):
     def __init__(self, debug= False,stopcb=None):
         oplogs("Harry Botter is rebooting")
@@ -40,6 +41,7 @@ class HarryBotter(object):
         self.support_groups = []
         self.debug = debug
         self.sched = None
+        self.starttime = datetime.now()
 
     def subscribe(self,msgSend):
         self.mouth = msgSend
@@ -76,7 +78,9 @@ class HarryBotter(object):
 
         # 交易日9:30:15生成开盘报告
         self.sched.add_job(self.job_open_scan, trigger='cron', day_of_week='0-4',hour=9, minute=30, second=15)
-        
+        # 交易日11:30--13:00之间关闭扫描
+        self.sched.add_job(self.job_close_scan, trigger='cron', day_of_week='0-4',hour=11, minute=30, second=15)
+        self.sched.add_job(self.job_open_scan, trigger='cron', day_of_week='0-4',hour=13, minute=0, second=0)
         # 交易日15:05:00生成收盘报告
         self.sched.add_job(self.job_close_scan, trigger='cron', day_of_week='0-4',hour=15, minute=5, second=0)
         
@@ -177,17 +181,22 @@ class HarryBotter(object):
         if ('list' in cmds[1]) or ('本群推荐' in cmds[1]):
             oplogs("action_user:本群推荐 [%s]" %cmd)
             return self.stockmod.get_group_stock_price(group)
-        elif 'del' in cmds[1]:
+        elif 'del' == cmds[1]:
             return self.stockmod.del_from_list(group, cmds[2])
         elif 'stat' in cmds[1]:
-            stat = "共有群消息 条\n"
-            stat = stat + ""
-            return "建设中"
+            boottime = datetime.now() - self.starttime 
+                        
+            boothour = int(boottime.seconds/3600)
+            bootmin  = int(boottime.seconds%3600/60)
+            stat ="机器人已运行:{}天{}小时{}分钟\n股价扫描任务:{}".format(boottime.days,boothour,bootmin,self.sched.state)   
+
+            return stat
+
         elif 'report' in cmds[1]:
             return "建设中"
         elif 'help' in cmds[1]:
             oplogs("action_user:help called")
-            return 'harry [股票名|本群推荐|list|del stockname|help|ver]'
+            return auto_replys[0]
         elif 'ver' in cmds[1]:
             return HR__VERSION
         elif '启动' in cmds[1]:

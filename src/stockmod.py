@@ -254,6 +254,22 @@ class StockMod(object):
             groupalarms[key] = sorted_alarms           
 
         return groupalarms
+        
+    def del_from_list(self, group, stock):
+        # group, group name
+        # stock, stock name
+        # remove stock from group
+        if stock.isdigit():
+            code = stock
+        else:
+            code = self.stockrdict[stock]
+
+        if group in self.monitor_queue.keys():
+            if code in self.monitor_queue[group]:
+                self.monitor_queue[group].remove(code)
+
+        oplogs("del_from_list called:%s %s" %(group, stock))
+
     def test(self):        
         data = self.api.get_security_bars(0,1, '600477', 0, 48) # 5 min K bar
         df = self.api.to_df(data)
