@@ -42,11 +42,12 @@ def group_reply(msg):
         if msg.isAt:
             return
 
-        if USER_CMD in msg['Text']: # 用户命令
+        if USER_CMD in msg['Text'].lower(): # contain 'harry' to trigger user command
             ret = gRobot.action_user(msg.Text, 
                                      msg.User.NickName, 
                                      msg.ActualNickName)
 
+            # sleep 1 sec to avoid be ban
             time.sleep(1)
             if ret is not "":
                 msg.user.send(ret)
