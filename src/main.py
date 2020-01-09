@@ -1,17 +1,19 @@
 import time,os
-import psutil
 import configparser
-from robotutils import oplogs
 
 import itchat
 from itchat.content import TEXT
-from harrybotter import HarryBotter, USER_CMD
+
+from src.robotutils import oplogs
+from src.harrybotter import HarryBotter, USER_CMD
+from src.stockmod import StockMod
 
 gRobot = None
 supportgroup = []
 
 @itchat.msg_register(itchat.content.TEXT)
 def text_reply(msg):
+
     # use filehelper as control console
     if msg.user['UserName'] == "filehelper":        
         oplogs("['filehelper']%s" %(msg['Text'])) 
@@ -32,17 +34,19 @@ def text_reply(msg):
             if ret is not "":
                 msg.user.send(ret)
 
-
 @itchat.msg_register([TEXT],isGroupChat=True)
 def group_reply(msg):
+
     # 处理support group中的命令
     if gRobot.is_support_group(msg.User.NickName):
         oplogs("[%s:%s]%s" %(msg.User.NickName, msg.ActualNickName, msg['Text']))
-        #忽略at我的命令
+        
+        #忽略at我的命令        
         if msg.isAt:
             return
 
         if USER_CMD in msg['Text'].lower(): # contain 'harry' to trigger user command
+
             ret = gRobot.action_user(msg.Text, 
                                      msg.User.NickName, 
                                      msg.ActualNickName)
@@ -90,6 +94,7 @@ def init_robot():
     # 默认在windows下开启调试模式
     loadcfg()
     gRobot = HarryBotter(debug = (os.name is 'nt'),stopcb=quitwx)
+    gRobot.install_mods(StockMod())
     gRobot.add_groups(supportgroup)
     gRobot.subscribe(sendto)
     oplogs("Harry bot init accomplished")

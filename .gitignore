@@ -11,4 +11,5 @@ QR.jpg
 *.log
 *.ini
 .vscode
+__pycache__
 

@@ -3,7 +3,7 @@ from pytdx.hq import TdxHq_API
 import random
 import time
 import pprint
-from robotutils import oplogs
+from src.robotutils import oplogs
 import pandas as pd
 import os
 
@@ -76,10 +76,8 @@ class StockMod(object):
         self.stocklist.drop(self.stocklist[self.stocklist.name == '机器人'].index, inplace=True)
         df_index = pd.DataFrame([['999999','上证指数'], ['399001','深证成指'], ['399006','创业板指']], index=['999999','399001','399006'], columns=['code', 'name'])
 
-        #self.stocklist = self.stocklist.append([{'index':999999,'code':'999999','name':'上证指数'}])
-        #self.stocklist = self.stocklist.append([{'index':399001,'code':'399001','name':'深圳成指'}])
-        #self.stocklist = self.stocklist.append([{'index':399006,'code':'399006','name':'创业板指'}])
         self.stocklist = self.stocklist.append(df_index)
+
 
         # create dict and list to shorten search time
         self.stockdict = self.stocklist.to_dict()["name"]        

@@ -3,8 +3,8 @@ from datetime import datetime
 import sqlite3
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from stockmod import StockMod
-from robotutils import oplogs
+from src.stockmod import StockMod
+from src.robotutils import oplogs
  
 
 HR__VERSION = "Released on 2019.12.3"
@@ -20,7 +20,7 @@ class HarryBotter(object):
         oplogs("Harry Botter is rebooting")
         self.__init_robot(debug)
         self.stopcb = stopcb
-        self.__load_mods()        
+  
         #self.__init_db()
         self.__init_jobs()
         oplogs("Harry Botter is online")
@@ -49,8 +49,8 @@ class HarryBotter(object):
     def unsubscribe(self):
         self.mouth = None   
         oplogs('Robot muted.')
-    def __load_mods(self):
-        self.stockmod = StockMod(self.debug)
+    def install_mods(self, hmod):
+        self.stockmod = hmod #StockMod(self.debug)
 
     def __init_db(self):
         # 创建数据库数据库用于永久记忆
@@ -78,10 +78,12 @@ class HarryBotter(object):
 
         # 交易日9:30:15生成开盘报告
         self.sched.add_job(self.job_open_scan, trigger='cron', day_of_week='0-4',hour=9, minute=30, second=15)
+
         # 交易日11:30--13:00之间关闭扫描
         self.sched.add_job(self.job_close_scan, trigger='cron', day_of_week='0-4',hour=11, minute=30, second=15)
         self.sched.add_job(self.job_open_scan, trigger='cron', day_of_week='0-4',hour=13, minute=0, second=0)
         # 交易日15:05:00生成收盘报告
+
         self.sched.add_job(self.job_close_scan, trigger='cron', day_of_week='0-4',hour=15, minute=5, second=0)
         
         # 启动调度器
@@ -182,6 +184,7 @@ class HarryBotter(object):
             oplogs("action_user:本群推荐 [%s]" %cmd)
             return self.stockmod.get_group_stock_price(group)
         elif 'del' == cmds[1]:
+
             return self.stockmod.del_from_list(group, cmds[2])
         elif 'stat' in cmds[1]:
             boottime = datetime.now() - self.starttime 
@@ -196,7 +199,9 @@ class HarryBotter(object):
             return "建设中"
         elif 'help' in cmds[1]:
             oplogs("action_user:help called")
+
             return auto_replys[0]
+
         elif 'ver' in cmds[1]:
             return HR__VERSION
         elif '启动' in cmds[1]:
