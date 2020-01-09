@@ -24,6 +24,7 @@ def text_reply(msg):
                                     msg.User.UserName, 
                                     msg.User.UserName)
 
+
             time.sleep(1)
             
             if ret is not "":
@@ -108,4 +109,6 @@ def main():
     
     oplogs("Harry Botter offline")
 
-main()
+
+if __name__ == '__main__':
+    main()

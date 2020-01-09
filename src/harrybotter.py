@@ -184,7 +184,6 @@ class HarryBotter(object):
             oplogs("action_user:本群推荐 [%s]" %cmd)
             return self.stockmod.get_group_stock_price(group)
         elif 'del' == cmds[1]:
-
             return self.stockmod.del_from_list(group, cmds[2])
         elif 'stat' in cmds[1]:
             boottime = datetime.now() - self.starttime 
@@ -199,7 +198,6 @@ class HarryBotter(object):
             return "建设中"
         elif 'help' in cmds[1]:
             oplogs("action_user:help called")
-
             return auto_replys[0]
 
         elif 'ver' in cmds[1]:
